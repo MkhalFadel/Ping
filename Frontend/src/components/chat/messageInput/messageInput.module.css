@@ -1,0 +1,30 @@
+.inputBox {
+   display: flex;
+   gap: 10px;
+   padding: 14px;
+   border-top: 1px solid var(--border);
+}
+
+.input {
+   flex: 1;
+   background: var(--bg);
+   border: 1px solid var(--border);
+   padding: 10px 12px;
+   border-radius: var(--radius-sm);
+   color: var(--text);
+   outline: none;
+}
+
+.button {
+   background: var(--primary);
+   border: none;
+   padding: 10px 16px;
+   border-radius: var(--radius-sm);
+   color: white;
+   cursor: pointer;
+   transition: 0.2s;
+}
+
+.button:hover {
+   background: var(--primary-dark);
+}

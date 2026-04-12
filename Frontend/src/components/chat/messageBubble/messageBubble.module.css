@@ -1,0 +1,19 @@
+.message {
+   max-width: 65%;
+   padding: 10px 14px;
+   border-radius: var(--radius-md);
+   font-size: 18px;
+   line-height: 1.4;
+}
+
+.received {
+   background: var(--surface-2);
+   color: var(--text);
+   align-self: flex-start;
+}
+
+.sent {
+   background: var(--primary);
+   color: white;
+   align-self: flex-end;
+}

@@ -1,0 +1,49 @@
+.app {
+   display: flex;
+   height: 100vh;
+   background: var(--bg);
+   padding: 16px;
+   gap: 16px;
+}
+
+.sidebar {
+   width: 280px;
+   background: var(--surface);
+   border-radius: var(--radius-lg);
+   display: flex;
+   flex-direction: column;
+   padding: 12px;
+}
+
+.chat {
+   flex: 1;
+   background: var(--surface);
+   border-radius: var(--radius-lg);
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+}
+
+.sidebarHeader {
+   font-size: 18px;
+   font-weight: 600;
+   padding: 12px;
+   color: var(--text);
+}
+
+@media (max-width: 768px) {
+   .app {
+      padding: 0;
+      gap: 0;
+   }
+
+   .sidebar {
+      width: 100%;
+      border-radius: 0;
+   }
+
+   .chat {
+      width: 100%;
+      border-radius: 0;
+   }
+}
