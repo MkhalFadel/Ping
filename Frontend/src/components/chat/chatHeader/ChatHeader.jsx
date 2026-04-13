@@ -7,7 +7,6 @@ function ChatHeader({ onBack, name }) {
    return (
       <div className={styles.header}>
 
-         {/* Back button (mobile only later) */}
          <button className={styles.backBtn} onClick={onBack}>
          ←
          </button>

@@ -3,8 +3,6 @@ import ChatItem from "../chatItem/ChatItem";
 
 function ChatList({ chats, activeChatId, onSelectChat }) {
 
-   console.log(activeChatId)
-
    const chatListEl = chats.map(c => (
       <div key={c.id} onClick={() => onSelectChat(c.id)}>
          <ChatItem 
@@ -12,6 +10,7 @@ function ChatList({ chats, activeChatId, onSelectChat }) {
             name={c.name}
             last={c.lastMessage}
             time={c.lastMessageTime}
+            unreadCount={c.unreadCount}
          />
       </div>
       ))
