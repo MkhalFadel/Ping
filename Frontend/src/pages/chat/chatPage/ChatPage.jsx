@@ -20,11 +20,13 @@ function ChatPage() {
          id: "chat_1",
          name: "John Doe",
          lastMessage: "Hey, how are you?",
+         lastMessageTime: new Date().toISOString()
       },
       {
          id: "chat_2",
          name: "Alice",
          lastMessage: "See you later",
+         lastMessageTime: new Date().toISOString()
       },
    ]);
 

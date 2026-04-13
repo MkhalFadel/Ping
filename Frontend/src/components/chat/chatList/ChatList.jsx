@@ -11,6 +11,7 @@ function ChatList({ chats, activeChatId, onSelectChat }) {
             active={c.id === activeChatId} 
             name={c.name}
             last={c.lastMessage}
+            time={c.lastMessageTime}
          />
       </div>
       ))

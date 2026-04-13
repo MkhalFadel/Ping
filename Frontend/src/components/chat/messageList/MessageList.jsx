@@ -6,7 +6,10 @@ function MessageList({messages, currentUserId}) {
    const bottomRef = useRef(null)
 
    const messagesEl = messages.map(m => (
-      <MessageBubble key={m.id} text={m.content} type={currentUserId === m.senderId ? 'sent' : 'received'} />
+      <MessageBubble key={m.id}
+                     text={m.content} 
+                     type={currentUserId === m.senderId ? 'sent' : 'received'}
+                     createdAt={m.createdAt} />
    ))
 
    useEffect(() => {

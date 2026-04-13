@@ -32,8 +32,8 @@
 .chatName {
    font-size: 14px;
    font-weight: 500;
-   margin-bottom: -10px;
    color: var(--text);
+   margin-right: 10px;
 }
 
 .chatLast {
@@ -41,4 +41,16 @@
    color: var(--muted);
    max-width: 180px;
    overflow: hidden;
+}
+
+.topRow {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: -10px;
+}
+
+.time {
+   font-size: 11px;
+   color: var(--muted);
 }

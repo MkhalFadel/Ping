@@ -17,9 +17,22 @@ function MessageInput({ setMessages, currentUserId, chatId, setChats }) {
       }
       setMessages(m => [...m, messageObj]);
 
-      setChats(prevChat => {
-         return prevChat.map(chat => (chat.id === chatId ? { ...chat, lastMessage: message.trim() } : chat))
-      })
+      setChats((prevChats) => {
+      const updated = prevChats.map((chat) =>
+         chat.id === chatId
+            ? {
+               ...chat,
+               lastMessage: message.trim(),
+               lastMessageTime: new Date().toISOString(),
+            }
+            : chat
+      );
+
+      const active = updated.find((c) => c.id === chatId);
+      const others = updated.filter((c) => c.id !== chatId);
+
+      return [active, ...others];
+   });
 
       setMessage("")
    }
