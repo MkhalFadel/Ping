@@ -12,6 +12,27 @@ function ChatPage() {
 
    const [view, setView] = useState("list"); 
 
+   const currentUserId = "user_1";
+
+   const [messages, setMessages] = useState([
+      {
+         id: "1",
+         chatId: "chat_1",
+         senderId: "user_2",
+         content: "Hello 👋",
+         createdAt: new Date().toISOString(),
+      },
+      {
+         id: "2",
+         chatId: "chat_1",
+         senderId: "user_1",
+         content: "Hey! What's up?",
+         createdAt: new Date().toISOString(),
+      },
+   ]);
+
+   console.log(messages)
+
    const openChat = () => {
       if (isMobile) setView("chat");
    };
@@ -38,8 +59,8 @@ function ChatPage() {
          {(!isMobile || view === "chat") && (
          <main className={styles.chat}>
             <ChatHeader onBack={goBack} />
-            <MessageList />
-            <MessageInput />
+            <MessageList messages={messages} currentUserId={currentUserId} />
+            <MessageInput setMessages={setMessages} currentUserId={currentUserId} />
          </main>
          )}
 
