@@ -1,7 +1,7 @@
 import styles from "./chatHeader.module.css";
 import { useTheme } from "../../../context/ThemeContext";
 
-function ChatHeader({ onBack }) {
+function ChatHeader({ onBack, name }) {
    const { theme, toggleTheme } = useTheme();
 
    return (
@@ -15,7 +15,7 @@ function ChatHeader({ onBack }) {
          <div className={styles.avatar}></div>
 
          <div className={styles.title}>
-            <div className={styles.name}>John Doe</div>
+            <div className={styles.name}>{name}</div>
             <div className={styles.status}>Online</div>
          </div>
 

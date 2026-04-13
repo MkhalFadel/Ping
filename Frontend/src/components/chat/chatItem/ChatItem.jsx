@@ -8,8 +8,8 @@ function ChatItem({ name, last, active }) {
          <div className={styles.avatar}></div>
 
          <div className={styles.chatInfo}>
-         <div className={styles.chatName}>{name}</div>
-         <div className={styles.chatLast}>{last}</div>
+            <div className={styles.chatName}>{name}</div>
+            <div className={styles.chatLast}>{last}</div>
          </div>
       </div>
    );

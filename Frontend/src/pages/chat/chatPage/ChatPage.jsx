@@ -10,9 +10,23 @@ import MessageInput from "../../../components/chat/messageInput/MessageInput";
 function ChatPage() {
    const isMobile = useIsMobile();
 
-   const [view, setView] = useState("list"); 
+   const [view, setView] = useState("list");
+   const [activeChatId, setActiveChatId] = useState("chat_1");
 
    const currentUserId = "user_1";
+
+   const [chats, setChats] = useState([
+      {
+         id: "chat_1",
+         name: "John Doe",
+         lastMessage: "Hey, how are you?",
+      },
+      {
+         id: "chat_2",
+         name: "Alice",
+         lastMessage: "See you later",
+      },
+   ]);
 
    const [messages, setMessages] = useState([
       {
@@ -31,15 +45,17 @@ function ChatPage() {
       },
    ]);
 
-   console.log(messages)
-
-   const openChat = () => {
+   const openChat = (chatId) => {
+      setActiveChatId(chatId);
       if (isMobile) setView("chat");
    };
 
    const goBack = () => {
       if (isMobile) setView("list");
    };
+
+   const activeChat = chats.find(c => c.id === activeChatId)
+   const filteredMessages = messages.filter(m => m.chatId === activeChatId);
 
    return (
       <div className={styles.app}>
@@ -51,16 +67,16 @@ function ChatPage() {
                Ping
             </div>
 
-            <ChatList onSelectChat={openChat} />
+            <ChatList chats={chats} activeChatId={activeChatId} onSelectChat={openChat} />
          </aside>
          )}
 
          {/* CHAT */}
          {(!isMobile || view === "chat") && (
          <main className={styles.chat}>
-            <ChatHeader onBack={goBack} />
-            <MessageList messages={messages} currentUserId={currentUserId} />
-            <MessageInput setMessages={setMessages} currentUserId={currentUserId} />
+            <ChatHeader onBack={goBack} name={activeChat?.name} />
+            <MessageList messages={filteredMessages} currentUserId={currentUserId} />
+            <MessageInput setMessages={setMessages} currentUserId={currentUserId} chatId={activeChatId} setChats={setChats} />
          </main>
          )}
 

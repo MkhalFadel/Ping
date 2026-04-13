@@ -1,16 +1,23 @@
 import styles from "./chatList.module.css";
 import ChatItem from "../chatItem/ChatItem";
 
-function ChatList({ onSelectChat }) {
+function ChatList({ chats, activeChatId, onSelectChat }) {
+
+   console.log(activeChatId)
+
+   const chatListEl = chats.map(c => (
+      <div key={c.id} onClick={() => onSelectChat(c.id)}>
+         <ChatItem 
+            active={c.id === activeChatId} 
+            name={c.name}
+            last={c.lastMessage}
+         />
+      </div>
+      ))
+
    return (
       <div className={styles.chatList}>
-         <div onClick={onSelectChat}>
-         <ChatItem active name="John Doe" last="Hey, how are you?" />
-         </div>
-
-         <div onClick={onSelectChat}>
-         <ChatItem name="Alice" last="See you later" />
-         </div>
+         {chatListEl}
       </div>
    );
 }
