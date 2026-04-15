@@ -1,6 +1,6 @@
 import styles from "./messageBubble.module.css";
 
-function MessageBubble({ text, type, createdAt }) {
+function MessageBubble({ text, type, createdAt, status }) {
    
    const time = new Date(createdAt).toLocaleTimeString([], {
       hour: '2-digit',
@@ -16,7 +16,18 @@ function MessageBubble({ text, type, createdAt }) {
          <div>
             {text}
          </div>
-         <span className={styles.time}>{time}</span>
+         
+         <div className={styles.meta}>
+            <span className={styles.time}>{time}</span>
+
+            {type === "sent" && (
+               <span className={`${styles.status} ${status === 'read' ? styles.read : ""}`}>
+                  {status === "sent" && "✓"}
+                  {status === "delivered" && "✓✓"}
+                  {status === "read" && "✓✓"}
+               </span>
+            )}
+         </div>
       </div>
    );
 }

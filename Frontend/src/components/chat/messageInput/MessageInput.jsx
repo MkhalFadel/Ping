@@ -13,7 +13,8 @@ function MessageInput({ setMessages, currentUserId, chatId, setChats }) {
          chatId: chatId,
          senderId: currentUserId,
          content: message.trim(),
-         createdAt: new Date().toISOString()
+         createdAt: new Date().toISOString(),
+         status: "sent"
       }
       setMessages(m => [...m, messageObj]);
 
@@ -27,6 +28,22 @@ function MessageInput({ setMessages, currentUserId, chatId, setChats }) {
             }
             : chat
       );
+
+      function updateMessageStatus(messageId, status) {
+      setMessages((prev) =>
+         prev.map((msg) =>
+            msg.id === messageId ? { ...msg, status } : msg
+         )
+      );
+   }
+
+      setTimeout(() => {
+         updateMessageStatus(messageObj.id, "delivered");
+         }, 1000);
+
+      setTimeout(() => {
+         updateMessageStatus(messageObj.id, "read");
+         }, 2000);
 
       const active = updated.find((c) => c.id === chatId);
       const others = updated.filter((c) => c.id !== chatId);

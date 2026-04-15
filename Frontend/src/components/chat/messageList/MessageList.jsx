@@ -9,7 +9,8 @@ function MessageList({messages, currentUserId}) {
       <MessageBubble key={m.id}
                      text={m.content} 
                      type={currentUserId === m.senderId ? 'sent' : 'received'}
-                     createdAt={m.createdAt} />
+                     createdAt={m.createdAt}
+                     status={m.status} />
    ))
 
    useEffect(() => {
