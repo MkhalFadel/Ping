@@ -1,7 +1,7 @@
 import styles from "./messageInput.module.css";
 import { useState } from "react";
 
-function MessageInput({ setMessages, currentUserId, chatId, setChats }) {
+function MessageInput({ setMessages, currentUserId, chatId, setChats, onSend }) {
 
    const [message, setMessage] = useState("");
 
@@ -16,6 +16,8 @@ function MessageInput({ setMessages, currentUserId, chatId, setChats }) {
          createdAt: new Date().toISOString(),
          status: "sent"
       }
+
+      onSend();
       setMessages(m => [...m, messageObj]);
 
       setChats((prevChats) => {

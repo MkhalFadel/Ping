@@ -13,6 +13,7 @@ function ChatPage() {
 
    const [view, setView] = useState("list");
    const [activeChatId, setActiveChatId] = useState("chat_1");
+   const [forceScroll, setForceScroll] = useState(false);
 
    const currentUserId = "user_1";
 
@@ -49,6 +50,16 @@ function ChatPage() {
          createdAt: new Date().toISOString(),
       },
    ]);
+   
+   useEffect(() => {
+      if (forceScroll) {
+         const timeout = setTimeout(() => {
+            setForceScroll(false);
+         }, 100);
+
+         return () => clearTimeout(timeout);
+      }
+   }, [forceScroll]);
 
    useEffect(() => {
    const interval = setInterval(() => {
@@ -63,28 +74,30 @@ function ChatPage() {
          createdAt: new Date().toISOString(),
       };
 
-      // ✅ Add message
+      
+      // Add message
       setMessages((prev) => [...prev, fakeMessage]);
 
-      // ✅ Update chat preview
+      // Update chat preview
       setChats((prevChats) => {
-      const updated = prevChats.map((chat) => {
-         if (chat.id === randomChat.id) {
-            return {
-            ...chat,
-            lastMessage: fakeMessage.content,
-            lastMessageTime: fakeMessage.createdAt,
-
-            // 🔥 increase unread count ONLY if not active chat
-            unreadCount:
-               activeChatId === chat.id
+         const updated = prevChats.map((chat) => {
+            if (chat.id === randomChat.id) {
+               return {
+                  ...chat,
+                  lastMessage: fakeMessage.content,
+                  lastMessageTime: fakeMessage.createdAt,
+                  
+                  // 🔥 increase unread count ONLY if not active chat
+                  unreadCount:
+                  activeChatId === chat.id
                   ? 0
                   : (chat.unreadCount || 0) + 1,
-            };
-         }
-
-         return chat;
-      });
+               };
+            }
+            
+            return chat;
+         });
+         
 
       const active = updated.find((c) => c.id === randomChat.id);
       const others = updated.filter((c) => c.id !== randomChat.id);
@@ -116,6 +129,8 @@ function ChatPage() {
    const activeChat = chats.find(c => c.id === activeChatId)
    const filteredMessages = messages.filter(m => m.chatId === activeChatId);
 
+
+
    return (
       <div className={styles.app}>
 
@@ -134,8 +149,8 @@ function ChatPage() {
          {(!isMobile || view === "chat") && (
          <main className={styles.chat}>
             <ChatHeader onBack={goBack} name={activeChat?.name} />
-            <MessageList messages={filteredMessages} currentUserId={currentUserId} />
-            <MessageInput setMessages={setMessages} currentUserId={currentUserId} chatId={activeChatId} setChats={setChats} />
+            <MessageList messages={filteredMessages} currentUserId={currentUserId} forceScroll={forceScroll} />
+            <MessageInput setMessages={setMessages} currentUserId={currentUserId} chatId={activeChatId} setChats={setChats} onSend={() => setForceScroll(true)} />
          </main>
          )}
 

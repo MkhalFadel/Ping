@@ -6,4 +6,25 @@
    gap: 12px;
    overflow-y: auto;
    scrollbar-width: none;
+   position: relative;
+}
+
+.scrollButton {
+   position: absolute;
+   bottom: 80px; 
+   left: 58%;
+   transform: translateX(-50%);
+   background: #3b82f6;
+   color: white;
+   border: none;
+   border-radius: 20px;
+   padding: 8px 14px;
+   font-size: 12px;
+   cursor: pointer;
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+   transition: all 0.2s ease;
+}
+
+.scrollButton:hover {
+   transform: translateX(-50%) scale(1.05);
 }
