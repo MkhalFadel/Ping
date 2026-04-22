@@ -2,6 +2,9 @@ import styles from "./chatPage.module.css";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "../../../hooks/useIsMobile";
 import logo from '../../../../public/Images/logo.svg'
+import { useAuth } from "../../../context/AuthContext";
+import { getChats } from "../../../API/chat";
+import { getMessages } from "../../../API/message";
 
 import ChatList from "../../../components/chat/chatList/ChatList";
 import ChatHeader from "../../../components/chat/chatHeader/ChatHeader";
@@ -15,42 +18,14 @@ function ChatPage() {
    const [activeChatId, setActiveChatId] = useState("chat_1");
    const [forceScroll, setForceScroll] = useState(false);
 
-   const currentUserId = "user_1";
+   const { token, user } = useAuth();
+   const currentUserId = user?.id;
 
-   const [chats, setChats] = useState([
-      {
-         id: "chat_1",
-         name: "John Doe",
-         lastMessage: "Hey, how are you?",
-         lastMessageTime: new Date().toISOString(),
-         unreadCount: 0,
-      },
-      {
-         id: "chat_2",
-         name: "Alice",
-         lastMessage: "See you later",
-         lastMessageTime: new Date().toISOString(),
-         unreadCount: 0,
-      },
-   ]);
-
-   const [messages, setMessages] = useState([
-      {
-         id: "1",
-         chatId: "chat_1",
-         senderId: "user_2",
-         content: "Hello 👋",
-         createdAt: new Date().toISOString(),
-      },
-      {
-         id: "2",
-         chatId: "chat_1",
-         senderId: "user_1",
-         content: "Hey! What's up?",
-         createdAt: new Date().toISOString(),
-      },
-   ]);
+   const [chats, setChats] = useState([]);
+   const [messages, setMessages] = useState([]);
+   const [loading, setLoading] = useState(true);
    
+   // Force scroll when user send a message
    useEffect(() => {
       if (forceScroll) {
          const timeout = setTimeout(() => {
@@ -61,54 +36,88 @@ function ChatPage() {
       }
    }, [forceScroll]);
 
+   // get new messages
    useEffect(() => {
-   const interval = setInterval(() => {
-      const randomChat =
-         chats[Math.floor(Math.random() * chats.length)];
+      async function fetchMessages() {
+         try {
+            const data = await getMessages(activeChatId, token);
 
-      const fakeMessage = {
-         id: crypto.randomUUID(),
-         chatId: randomChat.id,
-         senderId: "user_2", // simulate another user
-         content: "New message " + Math.floor(Math.random() * 100),
-         createdAt: new Date().toISOString(),
-      };
+            setMessages(data);
 
-      
-      // Add message
-      setMessages((prev) => [...prev, fakeMessage]);
+            // 🔥 sync chat preview from backend messages
+            syncChatPreview(activeChatId, data);
 
-      // Update chat preview
-      setChats((prevChats) => {
-         const updated = prevChats.map((chat) => {
-            if (chat.id === randomChat.id) {
+         } catch (err) {
+            console.error(err);
+         }
+      }
+
+      if (activeChatId && token) {
+         fetchMessages();
+      }
+   }, [activeChatId, token]);
+
+   // get chats list
+   useEffect(() => {
+      async function fetchChats() {
+         try {
+            const data = await getChats(token);
+
+            const formatted = data.map(chat => {
+               const otherUser = chat.members.find(
+                  m => m.user.id !== user.id
+               )?.user;
+
                return {
-                  ...chat,
-                  lastMessage: fakeMessage.content,
-                  lastMessageTime: fakeMessage.createdAt,
-                  
-                  // 🔥 increase unread count ONLY if not active chat
-                  unreadCount:
-                  activeChatId === chat.id
-                  ? 0
-                  : (chat.unreadCount || 0) + 1,
+                  id: chat.id,
+                  name: otherUser?.username || "Unknown",
+                  lastMessage: chat.messages[0]?.content || "",
+                  lastMessageTime: chat.messages[0]?.createdAt,
+                  unreadCount: 0,
                };
+            });
+
+            setChats(formatted);
+
+            if (formatted.length > 0) {
+               setActiveChatId(formatted[0].id);
             }
-            
-            return chat;
-         });
-         
 
-      const active = updated.find((c) => c.id === randomChat.id);
-      const others = updated.filter((c) => c.id !== randomChat.id);
+         } catch (err) {
+            console.error(err);
+         } finally {
+            setLoading(false);
+         }
+      }
 
-      return [active, ...others];
-});
+      if (token && user) fetchChats();
+   }, [token, user]);
 
-   }, 5000); // every 5 seconds
+   function syncChatPreview(chatId, messages) {
+      const lastMessage = messages
+         .filter(m => m.chatId === chatId)
+         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
 
-   return () => clearInterval(interval);
-}, [chats]);
+      if (!lastMessage) return;
+
+      setChats(prev => {
+         const updated = prev.map(chat =>
+            chat.id === chatId
+               ? {
+                  ...chat,
+                  lastMessage: lastMessage.content,
+                  lastMessageTime: lastMessage.createdAt,
+               }
+               : chat
+         );
+
+         const active = updated.find(c => c.id === chatId);
+         const others = updated.filter(c => c.id !== chatId);
+
+         return [active, ...others];
+      });
+   }
+
 
    const openChat = (chatId) => {
       setActiveChatId(chatId);
@@ -128,8 +137,6 @@ function ChatPage() {
 
    const activeChat = chats.find(c => c.id === activeChatId)
    const filteredMessages = messages.filter(m => m.chatId === activeChatId);
-
-
 
    return (
       <div className={styles.app}>
