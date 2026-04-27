@@ -5,6 +5,7 @@ import logo from '../../../../public/Images/logo.svg'
 import { useAuth } from "../../../context/AuthContext";
 import { getChats } from "../../../API/chat";
 import { getMessages } from "../../../API/message";
+import socket from "../../../socket";
 
 import ChatList from "../../../components/chat/chatList/ChatList";
 import ChatHeader from "../../../components/chat/chatHeader/ChatHeader";
@@ -17,14 +18,58 @@ function ChatPage() {
    const [view, setView] = useState("list");
    const [activeChatId, setActiveChatId] = useState("chat_1");
    const [forceScroll, setForceScroll] = useState(false);
-
+   
    const { token, user } = useAuth();
    const currentUserId = user?.id;
-
+   
    const [chats, setChats] = useState([]);
    const [messages, setMessages] = useState([]);
    const [loading, setLoading] = useState(true);
-   
+
+   useEffect(() => {
+      socket.on("connect", () => {
+         console.log("Connected:", socket.id);
+      });
+
+      return () => {
+         socket.off("connect");
+      };
+   }, []);
+
+   useEffect(() => {
+      if (token) {
+         socket.auth = { token }; // attach token
+         socket.connect();
+
+      }
+
+      return () => {
+         socket.disconnect();
+      };
+   }, [token]);
+
+   useEffect(() => {
+      if (activeChatId) {
+         socket.emit("join_chat", activeChatId);
+      }
+   }, [activeChatId]);
+
+   useEffect(() => {
+      const handleMessage = (message) => {
+         console.log("Received in frontend:", message);
+
+         if (message.chatId === activeChatId && message.senderId !== currentUserId) {
+            setMessages(prev => [...prev, message]);
+         }
+      };
+
+      socket.on("receive_message", handleMessage);
+
+      return () => {
+         socket.off("receive_message", handleMessage);
+      };
+   }, [activeChatId, currentUserId]);
+
    // Force scroll when user send a message
    useEffect(() => {
       if (forceScroll) {

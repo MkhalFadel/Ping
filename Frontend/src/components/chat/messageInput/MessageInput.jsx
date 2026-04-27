@@ -2,6 +2,7 @@ import styles from "./messageInput.module.css";
 import { useState } from "react";
 import { sendMessage } from "../../../API/message";
 import { useAuth } from "../../../context/AuthContext";
+import socket from "../../../socket";
 
 function MessageInput({ setMessages, currentUserId, chatId, setChats, onSend }) {
 
@@ -52,6 +53,8 @@ function MessageInput({ setMessages, currentUserId, chatId, setChats, onSend }) 
             { chatId, content },
             token
          );
+
+         socket.emit("send_message", realMessage);
 
          // replace temp message
          setMessages(prev =>
