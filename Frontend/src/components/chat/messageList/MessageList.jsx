@@ -2,7 +2,7 @@ import styles from "./messageList.module.css";
 import MessageBubble from "../messageBubble/MessageBubble";
 import { useEffect, useRef, useState } from "react";
 
-function MessageList({ messages, currentUserId, forceScroll }) {
+function MessageList({ messages, currentUserId, forceScroll, isTyping }) {
    const containerRef = useRef(null);
    const bottomRef = useRef(null);
 
@@ -69,6 +69,9 @@ function MessageList({ messages, currentUserId, forceScroll }) {
             className={styles.messages}
          >
             {messagesEl}
+            {isTyping && (
+               <MessageBubble type="received" isTyping />
+            )}
             <div ref={bottomRef}></div>
          </div>
 

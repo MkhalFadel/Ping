@@ -91,6 +91,50 @@ io.on("connection", (socket) => {
       }
    });
 
+   // user is typing
+   socket.on("typing", async (chatId) => {
+      try {
+         const isMember = await prisma.chatMember.findFirst({
+            where: {
+            chatId,
+            userId: socket.user.id,
+            },
+         });
+
+         if (!isMember) return;
+
+         socket.to(chatId).emit("user_typing", {
+            chatId,
+            userId: socket.user.id,
+         });
+
+      } catch (err) {
+         console.log("Typing error:", err.message);
+      }
+   });
+
+   // user stopped typing
+   socket.on("stop_typing", async (chatId) => {
+      try {
+         const isMember = await prisma.chatMember.findFirst({
+            where: {
+            chatId,
+            userId: socket.user.id,
+            },
+         });
+
+         if (!isMember) return;
+
+         socket.to(chatId).emit("user_stop_typing", {
+            chatId,
+            userId: socket.user.id,
+         });
+
+      } catch (err) {
+         console.log("Stop typing error:", err.message);
+      }
+   });
+
    socket.on("join_chat", async (chatId) => {
       try {
          // check if user is part of this chat

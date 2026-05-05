@@ -2,12 +2,14 @@ import styles from "./messageInput.module.css";
 import { useState } from "react";
 import { sendMessage } from "../../../API/message";
 import { useAuth } from "../../../context/AuthContext";
+import { useRef } from "react";
 import socket from "../../../socket";
 
 function MessageInput({ setMessages, currentUserId, chatId, setChats, onSend }) {
 
    const [message, setMessage] = useState("");
 
+   const typingTimeout = useRef(null);
    const { token, user } = useAuth();
 
    async function handleSend() {
@@ -77,10 +79,27 @@ function MessageInput({ setMessages, currentUserId, chatId, setChats, onSend }) 
       }
    }
 
+   function handleChange(e) {
+      const value = e.target.value;
+      setMessage(value);
+
+      // emit typing
+      socket.emit("typing", chatId);
+
+      // reset timer
+      if (typingTimeout.current) {
+         clearTimeout(typingTimeout.current);
+      }
+
+      typingTimeout.current = setTimeout(() => {
+         socket.emit("stop_typing", chatId);
+      }, 1500); // 1.5s after last key
+   }
+
    return (
       <div className={styles.inputBox}>
          <input
-            onChange={e => setMessage(e.target.value)}
+            onChange={handleChange}
             onKeyDown={e => { if (e.key === 'Enter') handleSend() }}
             value={message}
             className={styles.input}

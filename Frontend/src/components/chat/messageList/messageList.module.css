@@ -28,3 +28,10 @@
 .scrollButton:hover {
    transform: translateX(-50%) scale(1.05);
 }
+
+.typing {
+   font-size: 14px;
+   color: gray;
+   font-style: italic;
+   margin-left: 20px;
+}

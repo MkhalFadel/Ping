@@ -18,6 +18,7 @@ function ChatPage() {
    const [view, setView] = useState("list");
    const [activeChatId, setActiveChatId] = useState("chat_1");
    const [forceScroll, setForceScroll] = useState(false);
+   const [isTyping, setIsTyping] = useState(false)
    
    const { token, user } = useAuth();
    const currentUserId = user?.id;
@@ -52,6 +53,28 @@ function ChatPage() {
       if (activeChatId) {
          socket.emit("join_chat", activeChatId);
       }
+   }, [activeChatId]);
+
+   useEffect(() => {
+      const handleTyping = ({ chatId }) => {
+         if (chatId === activeChatId) {
+            setIsTyping(true);
+         }
+      };
+
+      const handleStopTyping = ({ chatId }) => {
+         if (chatId === activeChatId) {
+            setIsTyping(false);
+         }
+      };
+
+      socket.on("user_typing", handleTyping);
+      socket.on("user_stop_typing", handleStopTyping);
+
+      return () => {
+         socket.off("user_typing", handleTyping);
+         socket.off("user_stop_typing", handleStopTyping);
+      };
    }, [activeChatId]);
 
    useEffect(() => {
@@ -201,7 +224,7 @@ function ChatPage() {
          {(!isMobile || view === "chat") && (
          <main className={styles.chat}>
             <ChatHeader onBack={goBack} name={activeChat?.name} />
-            <MessageList messages={filteredMessages} currentUserId={currentUserId} forceScroll={forceScroll} />
+            <MessageList messages={filteredMessages} currentUserId={currentUserId} forceScroll={forceScroll} isTyping={isTyping} />
             <MessageInput setMessages={setMessages} currentUserId={currentUserId} chatId={activeChatId} setChats={setChats} onSend={() => setForceScroll(true)} />
          </main>
          )}
