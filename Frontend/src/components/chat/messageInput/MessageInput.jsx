@@ -23,7 +23,7 @@ function MessageInput({ setMessages, currentUserId, chatId, setChats, onSend }) 
          senderId: user.id,
          content,
          createdAt: new Date().toISOString(),
-         status: "sending"
+         status: "sent"
       };
 
       // optimistic message

@@ -27,6 +27,8 @@ function ChatPage() {
    const [messages, setMessages] = useState([]);
    const [loading, setLoading] = useState(true);
 
+   const isChatVisible = !isMobile || view === "chat";
+
    useEffect(() => {
       socket.on("connect", () => {
          console.log("Connected:", socket.id);
@@ -81,8 +83,34 @@ function ChatPage() {
       const handleMessage = (message) => {
          console.log("Received in frontend:", message);
 
+         setChats(prevChats =>
+            prevChats.map(chat => {
+               if (chat.id !== message.chatId) return chat;
+
+               const isCurrentChat = message.chatId === activeChatId && isChatVisible;
+               const isIncoming = message.senderId !== currentUserId;
+
+               return {
+                  ...chat,
+                  lastMessage: message.content,
+                  lastMessageTime: message.createdAt,
+                  unreadCount:
+                     isCurrentChat || !isIncoming
+                        ? 0
+                        : (chat.unreadCount || 0) + 1,
+               };
+            })
+         );
+
          if (message.chatId === activeChatId && message.senderId !== currentUserId) {
             setMessages(prev => [...prev, message]);
+         }
+
+         if (message.senderId !== user.id) {
+            socket.emit("message_delivered", {
+               messageId: message.id,
+               chatId: message.chatId,
+            });
          }
       };
 
@@ -91,7 +119,7 @@ function ChatPage() {
       return () => {
          socket.off("receive_message", handleMessage);
       };
-   }, [activeChatId, currentUserId]);
+   }, [activeChatId, currentUserId, isChatVisible, user.id]);
 
    // Force scroll when user send a message
    useEffect(() => {
@@ -141,7 +169,7 @@ function ChatPage() {
                   name: otherUser?.username || "Unknown",
                   lastMessage: chat.messages[0]?.content || "",
                   lastMessageTime: chat.messages[0]?.createdAt,
-                  unreadCount: 0,
+                  unreadCount: chat.unreadCount ?? 0,
                };
             });
 
@@ -160,6 +188,60 @@ function ChatPage() {
 
       if (token && user) fetchChats();
    }, [token, user]);
+
+   useEffect(() => {
+      const handleDelivered = ({ messageId }) => {
+         setMessages(prev =>
+            prev.map(msg =>
+               msg.id === messageId
+                  ? { ...msg, status: "delivered" }
+                  : msg
+            )
+         );
+      };
+
+      socket.on("message_delivered_update", handleDelivered);
+
+      return () => {
+         socket.off("message_delivered_update", handleDelivered);
+      };
+   }, []);
+
+   useEffect(() => {
+      if (!activeChatId || !isChatVisible) return;
+
+      const unreadMessages = messages.filter(
+         m =>
+            m.chatId === activeChatId &&
+            m.senderId !== user.id &&
+            m.status !== "read"
+      );
+
+      unreadMessages.forEach(message => {
+         socket.emit("message_read", {
+            messageId: message.id,
+            chatId: activeChatId,
+         });
+      });
+   }, [activeChatId, messages, user.id, isChatVisible]);
+
+   useEffect(() => {
+      const handleRead = ({ messageId }) => {
+         setMessages(prev =>
+            prev.map(msg =>
+               msg.id === messageId
+                  ? { ...msg, status: "read" }
+                  : msg
+            )
+         );
+      };
+
+      socket.on("message_read_update", handleRead);
+
+      return () => {
+         socket.off("message_read_update", handleRead);
+      };
+   }, []);
 
    function syncChatPreview(chatId, messages) {
       const lastMessage = messages

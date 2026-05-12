@@ -157,6 +157,18 @@ io.on("connection", (socket) => {
          console.log("Join chat error:", err.message);
       }
    });
+
+   socket.on("message_delivered", ({ messageId, chatId }) => {
+      socket.to(chatId).emit("message_delivered_update", {
+            messageId,
+         });
+      });
+
+   socket.on("message_read", ({ messageId, chatId }) => {
+      socket.to(chatId).emit("message_read_update", {
+         messageId,
+      });
+   });
 });
 
 server.listen(PORT, () => {
